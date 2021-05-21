@@ -1,0 +1,13 @@
+{
+  "name": "examples",
+  "version": "1.0.0",
+  "description": "",
+  "author": "ryota-mitarai",
+  "license": "MIT",
+  "scripts": {
+    "serve": "parcel serve hologram/index.html"
+  },
+  "dependencies": {
+    "parcel": "*"
+  }
+}

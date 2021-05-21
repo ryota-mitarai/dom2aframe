@@ -1,0 +1,157 @@
+body {
+    font-family: "Roboto", sans-serif;
+    background-color: #282828;
+}
+
+#container{
+    width: 800px;
+    height: 600px;
+    float: left;
+    background-color: #2e3138;
+}
+
+#leftColumn{
+    float: left;
+    width: 450px;
+    height: 100%;
+    background-color: #23252b;
+}
+    #mediaContentContainer{
+        height: 449px;
+        position: relative;
+        background-color: #444953;
+    }
+
+        #hologramCanvas{
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            /*border: 1px solid blue;*/
+        }
+
+            #hologramCanvas canvas{
+                position: absolute;
+                z-index: 100;
+                pointer-events: none;
+            }
+
+            .animationButtonBox{
+                padding: 5px;
+                color: #ffffff;
+                position: absolute; 
+                top: 3%; 
+                background-color: #2e3138; 
+                width: 30%; 
+                height: 30%; 
+                z-index: 200;
+            }
+
+                .animationButtonBox img, #consoleControls img{
+                    display: inline-block;
+                    vertical-align: middle;
+                    width: 25px;
+                    height: 25px;
+                    margin-bottom: 5px;
+
+                    cursor: pointer;
+                }
+                .animationButtonBox span, #consoleControls span{
+                    margin: 0px 5px;
+                }
+
+        #video{
+            position: absolute;
+            top: 175px;
+            left: 0px;
+            width: 100%;
+        }
+
+    #controlsContainer{
+        height: 150px; 
+    }
+
+        #buttonControls{
+            width: 100%;
+            height: 91px;
+            border: 1px solid black;
+            color: #FFFFFF;
+        }
+
+            #buttonControls button{
+                background-color: #23252b;
+                border: 1px solid #8ab71b;
+                padding: 10px;
+                color: #8ab71b;
+                text-align: center;
+                display: inline-block;
+                box-sizing: content-box;
+            }
+
+            /* this doesn't play well with DOM2AFrame at this time :) */
+            /*
+            #videoPlayButton{
+                padding-left: 25px;
+                background: url("../files/img/checked.png") no-repeat left center;
+            }
+            */
+
+        #consoleControls{
+            box-sizing: border-box;
+            width: 100%;
+            border: 1px solid black;
+            background-color: #444953;
+            color: #FFFFFF;
+        }
+
+            #consoleInput{
+                height: 95%;
+                width: 60%;
+                color: #23252b;
+                background-color: #525863;
+                border: 1px solid #8ab71b;
+                padding: 5px;
+            }
+
+            #consoleSendButton{
+                background-color: #23252b;
+                border: 1px solid #000000;
+                padding: 7px;
+                color: #23252b;
+                background-color: #8ab71b;
+                text-align: center;
+                display: inline-block;
+                box-sizing: content-box;
+            }
+
+
+#rightColumn{
+    float: left;
+    width: 340px;
+    height: 100%;
+    background-color: #444953;
+    color: #FFFFFF;
+}
+
+    #cliOutputHeading{
+        width: 100%;
+        background-color: #525863;
+    }
+    
+        #cliOutputHeading p{
+            padding: 3px 0px 3px 10px;
+        }
+
+    #cliOutputContainer{
+        background-color: #444953;
+    }
+
+        #cliOutputContainer p{
+            border-bottom: 1px solid #333841;
+        }
+
+
+/*
+#rightColumn::after{
+    clear: both;
+}
+*/

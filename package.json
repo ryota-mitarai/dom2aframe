@@ -1,0 +1,21 @@
+{
+  "name": "dom2aframe",
+  "version": "1.0.0",
+  "description": "",
+  "author": "ryota-mitarai",
+  "license": "MIT",
+  "peerDependencies": {
+    "aframe": "*"
+  },
+  "devDependencies": {
+    "microbundle": "^0.13.0"
+  },
+  "scripts": {
+    "build": "microbundle",
+    "dev": "microbundle watch"
+  },
+  "keywords": [
+    "aframe",
+    "a-frame"
+  ]
+}

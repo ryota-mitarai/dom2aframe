@@ -1,4 +1,4 @@
-# dom2aframe
+# dom2aframe (heavy WIP)
 
 A library for converting HTML / CSS into Aframe entities, for use in VR.
 

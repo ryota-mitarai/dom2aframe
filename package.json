@@ -1,7 +1,9 @@
 {
   "name": "dom2aframe",
   "version": "1.0.0",
+  "homepage": "https://github.com/ryota-mitarai/dom2aframe",
   "description": "",
+  "repository": "https://github.com/ryota-mitarai/dom2aframe.git",
   "author": "ryota-mitarai",
   "license": "MIT",
   "peerDependencies": {

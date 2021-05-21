@@ -407,7 +407,7 @@ class Dom2Aframe {
     //press T to change video representation method
     //press L to toggle moving
     //press N to stop dynamicaly adding elements
-    //press O to show convas
+    //press O to show canvas
     //press M to toggle mouse as cursor
     //press Ctrl + Alt + I to inspect
 
@@ -445,7 +445,7 @@ class Dom2Aframe {
         this.dynamic_add_elements = !this.dynamic_add_elements;
         break;
 
-      case 79: //press O to show convas. This is done by changing the style of the canvas and a-scene
+      case 79: //press O to show canvas. This is done by changing the style of the canvas and a-scene
         if (this.changing_style.innerHTML == this.invr_css) this.changing_style.innerHTML = this.outvr_css;
         else this.changing_style.innerHTML = this.invr_css;
         break;

@@ -58,7 +58,7 @@ class Element {
   constructor(domelement) {
     this.domelement = domelement;
 
-    //Make sure dom elements can tell theyr children to update
+    //Make sure dom elements can tell their children to update
     this.domelement.setSubtreeDirty = () => {
       this.setSubtreeDirty();
     };

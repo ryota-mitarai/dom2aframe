@@ -402,7 +402,7 @@ class Dom2Aframe {
   checkKey(e) {
     e = e || window.event;
 
-    //press E or A to go up and down.
+    //press E or Q to go up and down.
     //press P to show video
     //press T to change video representation method
     //press L to toggle moving
@@ -412,13 +412,13 @@ class Dom2Aframe {
     //press Ctrl + Alt + I to inspect
 
     switch (e.keyCode) {
-      case 65: //press E or A to go up and down.
+      case 81: //press E or Q to go up and down.
         var pos = this.camera.getPosition();
         this.camera.setPosition({ x: pos.x, y: pos.y + 0.1, z: pos.z });
         this.video_element.SetPosition(pos);
         break;
 
-      case 69: //press E or A to go up and down.
+      case 69: //press E or Q to go up and down.
         var pos = this.camera.getPosition();
         this.camera.setPosition({ x: pos.x, y: pos.y - 0.1, z: pos.z });
         this.video_element.SetPosition(pos);

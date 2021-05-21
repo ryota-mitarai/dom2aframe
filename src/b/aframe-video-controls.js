@@ -1,522 +1,483 @@
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
+/******/ (function (modules) {
+  // webpackBootstrap
+  /******/ // The module cache
+  /******/ var installedModules = {};
+
+  /******/ // The require function
+  /******/ function __webpack_require__(moduleId) {
+    /******/ // Check if module is in cache
+    /******/ if (installedModules[moduleId]) /******/ return installedModules[moduleId].exports;
+
+    /******/ // Create a new module (and put it into the cache)
+    /******/ var module = (installedModules[moduleId] = {
+      /******/ exports: {},
+      /******/ id: moduleId,
+      /******/ loaded: false,
+      /******/
+    });
+
+    /******/ // Execute the module function
+    /******/ modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+
+    /******/ // Flag the module as loaded
+    /******/ module.loaded = true;
+
+    /******/ // Return the exports of the module
+    /******/ return module.exports;
+    /******/
+  }
 
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
+  /******/ // expose the modules object (__webpack_modules__)
+  /******/ __webpack_require__.m = modules;
 
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
-/******/ 			return installedModules[moduleId].exports;
+  /******/ // expose the module cache
+  /******/ __webpack_require__.c = installedModules;
+
+  /******/ // __webpack_public_path__
+  /******/ __webpack_require__.p = '';
+
+  /******/ // Load entry module and return exports
+  /******/ return __webpack_require__(0);
+  /******/
+})(
+  /************************************************************************/
+  /******/ [
+    /* 0 */
+    /***/ function (module, exports) {
+      if (typeof AFRAME === 'undefined') {
+        throw new Error('Component attempted to register before AFRAME was available.');
+      }
 
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			exports: {},
-/******/ 			id: moduleId,
-/******/ 			loaded: false
-/******/ 		};
+      var DEFAULT_INFO_TEXT_BOTTOM = 'Double-click outside player to hide or show it.';
+      var DEFAULT_INFO_TEXT_TOP = 'Look+click on play or bar. Space bar and arrows also work.';
 
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+      /**
+       ** Video control component for A-Frame.
+       */
 
-/******/ 		// Flag the module as loaded
-/******/ 		module.loaded = true;
+      AFRAME.registerComponent('video-controls', {
+        schema: {
+          src: { type: 'string' },
+          size: { type: 'number', default: 1.0 },
+          distance: { type: 'number', default: 2.0 },
+          backgroundColor: { default: 'black' },
+          barColor: { default: 'red' },
+          textColor: { default: 'yellow' },
+          infoTextBottom: { default: DEFAULT_INFO_TEXT_BOTTOM },
+          infoTextTop: { default: DEFAULT_INFO_TEXT_TOP },
+          infoTextFont: { default: '35px Helvetica Neue' },
+          statusTextFont: { default: '30px Helvetica Neue' },
+          timeTextFont: { default: '70px Helvetica Neue' },
+        },
 
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
+        position_time_from_steps: function () {
+          var unit_offset = this.current_step / this.bar_steps;
 
+          if (this.video_el.readyState > 0) {
+            this.video_el.currentTime = unit_offset * this.video_el.duration;
+          }
+        },
 
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
+        // Puts the control in from of the camera, at this.data.distance, facing it...
 
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
+        position_control_from_camera: function () {
+          var self = this;
 
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
+          var camera = self.el.sceneEl.camera;
 
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(0);
-/******/ })
-/************************************************************************/
-/******/ ([
-/* 0 */
-/***/ function(module, exports) {
+          if (camera) {
+            var camera_rotation = camera.el.getAttribute('rotation');
 
-	if (typeof AFRAME === 'undefined') {
-	  throw new Error('Component attempted to register before AFRAME was available.');
-	}
+            var camera_yaw = camera_rotation.y;
 
-	var DEFAULT_INFO_TEXT_BOTTOM = 'Double-click outside player to hide or show it.';
-	var DEFAULT_INFO_TEXT_TOP = 'Look+click on play or bar. Space bar and arrows also work.';
+            // Set position of menu based on camera yaw and data.pitch
 
-	/**
-	 ** Video control component for A-Frame.
-	 */
+            user_height = camera.el.getAttribute('user-height');
+            if (user_height == null) user_height = 1.6;
 
-	AFRAME.registerComponent('video-controls', {
-	  schema: {
-	    src: { type: 'string'},
-	    size: { type: 'number', default: 1.0},
-	    distance: { type: 'number', default:2.0},
-	    backgroundColor: { default: 'black'},
-	    barColor: { default: 'red'},
-	    textColor: { default: 'yellow'},
-	    infoTextBottom: { default: DEFAULT_INFO_TEXT_BOTTOM},
-	    infoTextTop: { default: DEFAULT_INFO_TEXT_TOP},
-	    infoTextFont: { default: '35px Helvetica Neue'},
-	    statusTextFont: { default: '30px Helvetica Neue'},
-	    timeTextFont: { default: '70px Helvetica Neue'}
-	  },
+            self.y_position = camera.position.y + user_height;
+            self.x_position = -self.data.distance * Math.sin((camera_yaw * Math.PI) / 180.0);
+            self.z_position = -self.data.distance * Math.cos((camera_yaw * Math.PI) / 180.0);
 
-	  position_time_from_steps: function(){
+            self.el.setAttribute('position', [self.x_position, self.y_position, self.z_position].join(' '));
 
-	        var unit_offset = this.current_step/this.bar_steps;
+            // and now, make our controls rotate towards origin
 
-	        if(this.video_el.readyState > 0) {
+            this.el.object3D.lookAt(
+              new THREE.Vector3(camera.position.x, camera.position.y + user_height, camera.position.z)
+            );
+          }
+        },
+        /**
+         * Called once when component is attached. Generally for initial setup.
+         */
+        init: function () {
+          var self = this;
 
-	            this.video_el.currentTime = unit_offset * this.video_el.duration;
-	        }
+          // Next two vars used to control transport bar with keyboard arrows
 
+          this.bar_steps = 10.0;
 
-	  },
+          this.current_step = 0.0;
 
-	  // Puts the control in from of the camera, at this.data.distance, facing it...
+          this.el.setAttribute('visible', true);
 
-	  position_control_from_camera: function(){
+          this.video_selector = this.data.src;
 
-	    var self = this;
+          this.video_el = document.querySelector(this.video_selector);
 
-	    var camera = self.el.sceneEl.camera;
+          // image sources for play/pause
 
-	    if(camera) {
+          self.play_image_src = document.getElementById('video-play-image')
+            ? '#video-play-image'
+            : 'https://res.cloudinary.com/dxbh0pppv/image/upload/c_scale,h_512,q_10/v1471016296/play_wvmogo.png';
+          self.pause_image_src = document.getElementById('video-pause-image')
+            ? '#video-pause-image'
+            : 'https://res.cloudinary.com/dxbh0pppv/image/upload/c_scale,h_512,q_25/v1471016296/pause_ndega5.png';
 
-	        var camera_rotation = camera.el.getAttribute("rotation");
+          // Create icon image (play/pause), different image whether video is playing.
 
-	        var camera_yaw = camera_rotation.y;
+          this.play_image = document.createElement('a-image');
 
-	        // Set position of menu based on camera yaw and data.pitch
+          if (this.video_el.paused) {
+            this.play_image.setAttribute('src', self.play_image_src);
+          } else {
+            this.play_image.setAttribute('src', self.pause_image_src);
+          }
 
-	        user_height = camera.el.getAttribute("user-height");
-	        if(user_height == null)
-	        	user_height = 1.6;
+          // Change icon to 'play' on end
 
-	        self.y_position = camera.position.y + user_height;
-	        self.x_position = -self.data.distance * Math.sin(camera_yaw * Math.PI / 180.0);
-	        self.z_position = -self.data.distance * Math.cos(camera_yaw * Math.PI / 180.0);
+          this.video_el.addEventListener('ended', function () {
+            self.play_image.setAttribute('src', self.play_image_src);
+          });
 
-	        self.el.setAttribute("position", [self.x_position, self.y_position, self.z_position].join(" "));
+          // Change icon to 'pause' on start.
 
-	        // and now, make our controls rotate towards origin
+          this.video_el.addEventListener('pause', function () {
+            self.play_image.setAttribute('src', self.play_image_src);
+          });
 
-	        this.el.object3D.lookAt(new THREE.Vector3(camera.position.x, camera.position.y + user_height, camera.position.z));
+          // Change icon to 'play' on pause.
 
-	    }
+          this.video_el.addEventListener('playing', function () {
+            self.play_image.setAttribute('src', self.pause_image_src);
+          });
 
-	  },
-	  /**
-	   * Called once when component is attached. Generally for initial setup.
-	   */
-	  init: function () {
+          this.bar_canvas = document.createElement('canvas');
+          this.bar_canvas.setAttribute('id', 'video_player_canvas');
+          this.bar_canvas.width = 1024;
+          this.bar_canvas.height = 256;
+          this.bar_canvas.style.display = 'none';
 
-	    var self = this;
+          this.context = this.bar_canvas.getContext('2d');
 
-	    // Next two vars used to control transport bar with keyboard arrows
+          this.texture = new THREE.Texture(this.bar_canvas);
 
-	    this.bar_steps = 10.0;
+          // On icon image, change video state and icon (play/pause)
 
-	    this.current_step = 0.0;
+          this.play_image.addEventListener('click', function (event) {
+            if (!self.video_el.paused) {
+              this.setAttribute('src', self.play_image_src);
 
-	    this.el.setAttribute("visible", true);
+              self.video_el.pause();
+            } else {
+              this.setAttribute('src', self.pause_image_src);
 
-	    this.video_selector = this.data.src;
+              self.video_el.play();
+            }
 
-	    this.video_el = document.querySelector(this.video_selector);
+            // Prevent propagation upwards (e.g: canvas click)
 
-	    // image sources for play/pause
+            event.stopPropagation();
 
-	    self.play_image_src = document.getElementById("video-play-image") ? "#video-play-image" : "https://res.cloudinary.com/dxbh0pppv/image/upload/c_scale,h_512,q_10/v1471016296/play_wvmogo.png";
-	    self.pause_image_src = document.getElementById("video-pause-image") ? "#video-pause-image" :"https://res.cloudinary.com/dxbh0pppv/image/upload/c_scale,h_512,q_25/v1471016296/pause_ndega5.png";
+            event.preventDefault();
+          });
 
-	    // Create icon image (play/pause), different image whether video is playing.
+          this.inputhandler = function (event) {
+            switch (event.keyCode) {
+              // If space bar is pressed, fire click on play_image
+              case 32:
+                self.play_image.dispatchEvent(new Event('click'));
+                break;
 
-	    this.play_image = document.createElement("a-image");
+              // Arrow left: beginning
+              case 37:
+                self.current_step = 0.0;
+                self.position_time_from_steps();
+                break;
 
-	    if (this.video_el.paused) {
-	      this.play_image.setAttribute("src", self.play_image_src);
-	    } else {
-	      this.play_image.setAttribute("src", self.pause_image_src);
-	    }
+              // Arrow right: end
+              case 39:
+                self.current_step = self.bar_steps;
+                self.position_time_from_steps();
 
-	    // Change icon to 'play' on end
+                break;
 
-	    this.video_el.addEventListener("ended", function(){
+              // Arrow up: one step forward
+              case 38:
+                self.current_step = self.current_step < self.bar_steps ? self.current_step + 1 : self.current_step;
+                self.position_time_from_steps();
+                break;
 
-	        self.play_image.setAttribute("src", self.play_image_src);
+              // Arrow down: one step back
+              case 40:
+                self.current_step = self.current_step > 0 ? self.current_step - 1 : self.current_step;
+                self.position_time_from_steps();
+                break;
+            }
+          };
 
-	    });
+          window.addEventListener('keyup', this.inputhandler, false);
 
-	    // Change icon to 'pause' on start.
+          // Create transport bar
 
-	    this.video_el.addEventListener("pause", function(){
+          this.bar = document.createElement('a-plane');
+          this.bar.setAttribute('color', '#000');
 
-	        self.play_image.setAttribute("src", self.play_image_src);
+          // On transport bar click, get point clicked, infer % of new pointer, and make video seek to that point
 
-	    });
+          this.bar.addEventListener('click', function (event) {
+            // Get raycast intersection point, and from there, x_offset in bar
 
-	    // Change icon to 'play' on pause.
+            var point = (
+              document.querySelector('a-cursor') || document.querySelector('a-camera')
+            ).components.raycaster.raycaster.intersectObject(this.object3D, true)[0].point;
 
-	    this.video_el.addEventListener("playing", function(){
+            var x_offset = this.object3D.worldToLocal(point).x;
 
-	        self.play_image.setAttribute("src", self.pause_image_src);
+            var unit_offset = x_offset / self.data.size + 0.5;
 
-	    });
+            // Update current step for coherence between point+click and key methods
 
-	    this.bar_canvas = document.createElement("canvas");
-	    this.bar_canvas.setAttribute("id", "video_player_canvas");
-	    this.bar_canvas.width = 1024;
-	    this.bar_canvas.height = 256;
-	    this.bar_canvas.style.display = "none";
+            self.current_step = Math.round(unit_offset * self.bar_steps);
 
-	    this.context = this.bar_canvas.getContext('2d');
+            if (self.video_el.readyState > 0) {
+              self.video_el.currentTime = unit_offset * self.video_el.duration;
+            }
 
-	    this.texture = new THREE.Texture(this.bar_canvas);
+            // Prevent propagation upwards (e.g: canvas click)
 
-	    // On icon image, change video state and icon (play/pause)
+            event.stopPropagation();
 
-	    this.play_image.addEventListener('click', function (event) {
+            event.preventDefault();
+          });
 
-	        if(!self.video_el.paused){
-	            this.setAttribute("src", self.play_image_src);
+          // Append image icon + info text + bar to component root
 
-	            self.video_el.pause();
+          this.el.appendChild(this.bar_canvas);
+          this.el.appendChild(this.play_image);
+          this.el.appendChild(this.bar);
 
-	        }
-	        else {
-	            this.setAttribute("src", self.pause_image_src);
+          // Attach double click behavior outside player once scene is loaded
 
-	            self.video_el.play();
+          this.el.sceneEl.addEventListener('loaded', function () {
+            self.position_control_from_camera();
 
-	        }
+            this.addEventListener('dblclick', function () {
+              var raycaster = (document.querySelector('a-cursor') || document.querySelector('a-camera')).components
+                .raycaster.raycaster;
 
-	        // Prevent propagation upwards (e.g: canvas click)
+              // Double click is outside the player
+              // (note that for some reason you cannot prevent a dblclick on player from bubbling up (??)
 
-	        event.stopPropagation();
+              if (raycaster.intersectObject(self.el.object3D, true).length == 0) {
+                // If controls are show: hide
 
-	        event.preventDefault();
+                if (self.el.getAttribute('visible')) {
+                  self.el.setAttribute('visible', false);
+                }
+                // Else, show at 'distance' from camera
+                else {
+                  self.el.setAttribute('visible', true);
 
-	    });
+                  self.position_control_from_camera();
+                }
+              }
+            });
+          });
+        },
 
-	    this.inputhandler = function(event) {
-	      switch (event.keyCode) {
+        /**
+         * Called when component is attached and when component data changes.
+         * Generally modifies the entity based on the data.
+         */
+        update: function (oldData) {
+          this.position_control_from_camera();
 
-	        // If space bar is pressed, fire click on play_image
-	        case 32:
-	          self.play_image.dispatchEvent(new Event('click'));
-	        break;
+          this.bar.setAttribute('height', this.data.size / 4.0);
+          this.bar.setAttribute('width', this.data.size);
+          this.bar.setAttribute('position', '0.0 0.0 0');
 
-	        // Arrow left: beginning
-	        case 37:
-	           self.current_step = 0.0;
-	           self.position_time_from_steps();
-	        break;
+          this.play_image.setAttribute('height', this.data.size / 4.0);
+          this.play_image.setAttribute('width', this.data.size / 4.0);
+          this.play_image.setAttribute('position', (-this.data.size / 2.0) * 1.4 + ' 0 0');
+        },
 
-	        // Arrow right: end
-	        case 39:
-	           self.current_step = self.bar_steps;
-	           self.position_time_from_steps();
+        /**
+         * Called when a component is removed (e.g., via removeAttribute).
+         * Generally undoes all modifications to the entity.
+         */
+        remove: function () {
+          window.removeEventListener('keyup', this.inputhandler, false);
+        },
 
-	        break;
+        /**
+         * Called on each scene tick.
+         */
+        tick: function (t) {
+          // Refresh every 250 millis
 
-	        // Arrow up: one step forward
-	        case 38:
-	           self.current_step = self.current_step < (self.bar_steps) ? self.current_step + 1 : self.current_step;
-	           self.position_time_from_steps();
-	        break;
+          if (typeof this.last_time === 'undefined' || t - this.last_time > 250) {
+            // At the very least, have all video metadata
+            // (https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState)
 
-	        // Arrow down: one step back
-	        case 40:
-	           self.current_step = self.current_step > 0 ? self.current_step - 1 : self.current_step;
-	           self.position_time_from_steps();
-	        break;
+            if (this.video_el.readyState > 0) {
+              // Get current position minutes and second, and add leading zeroes if needed
 
-	      }
-	    }
+              var current_minutes = Math.floor(this.video_el.currentTime / 60);
+              var current_seconds = Math.floor(this.video_el.currentTime % 60);
 
+              current_minutes = current_minutes < 10 ? '0' + current_minutes : current_minutes;
+              current_seconds = current_seconds < 10 ? '0' + current_seconds : current_seconds;
 
-	    window.addEventListener('keyup', this.inputhandler , false);
+              // Get video duration in  minutes and second, and add leading zeroes if needed
 
+              var duration_minutes = Math.floor(this.video_el.duration / 60);
+              var duration_seconds = Math.floor(this.video_el.duration % 60);
 
-	    // Create transport bar
+              duration_minutes = duration_minutes < 10 ? '0' + duration_minutes : duration_minutes;
+              duration_seconds = duration_seconds < 10 ? '0' + duration_seconds : duration_seconds;
 
-	    this.bar = document.createElement("a-plane");
-	    this.bar.setAttribute("color", "#000");
+              // Refresh time information : currentTime / duration
 
-	    // On transport bar click, get point clicked, infer % of new pointer, and make video seek to that point
+              var time_info_text =
+                current_minutes + ':' + current_seconds + ' / ' + duration_minutes + ':' + duration_seconds;
 
-	    this.bar.addEventListener('click', function (event) {
+              //  Refresh transport bar canvas
 
-	        // Get raycast intersection point, and from there, x_offset in bar
+              var inc = this.bar_canvas.width / this.video_el.duration;
 
-	        var point = (document.querySelector("a-cursor") || document.querySelector("a-camera")).components.raycaster.raycaster.intersectObject(this.object3D, true)[0].point;
+              //  display buffered TimeRanges
 
-	        var x_offset = this.object3D.worldToLocal(point).x;
+              if (this.video_el.buffered.length > 0) {
+                // Synchronize current step with currentTime
 
-	        var unit_offset = (x_offset/self.data.size)+0.5;
+                this.current_step = Math.round((this.video_el.currentTime / this.video_el.duration) * this.bar_steps);
 
-	        // Update current step for coherence between point+click and key methods
+                var ctx = this.context;
+                ctx.fillStyle = this.data.backgroundColor;
+                ctx.fillRect(0, 0, this.bar_canvas.width, this.bar_canvas.height);
 
-	        self.current_step = Math.round(unit_offset*self.bar_steps);
+                // Uncomment to draw a single bar for loaded data instead of 'bins'
 
-	        if(self.video_el.readyState > 0) {
+                //                ctx.fillStyle = "grey";
+                //
+                //                ctx.fillRect(0, 0,
+                //                    (this.video_el.buffered.end(this.video_el.buffered.length - 1) / this.video_el.duration)*this.bar_canvas.width,
+                //                    this.bar_canvas.height/2);
 
-	            self.video_el.currentTime = unit_offset * self.video_el.duration;
-	        }
+                // Display time info text
 
-	        // Prevent propagation upwards (e.g: canvas click)
+                ctx.font = this.data.timeTextFont;
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+                ctx.fillText(time_info_text, this.bar_canvas.width / 2, this.bar_canvas.height * 0.65);
 
-	        event.stopPropagation();
+                // DEBUG PURPOSES
 
-	        event.preventDefault();
+                //                ctx.fillText(this.video_el.readyState, this.bar_canvas.width*0.1, this.bar_canvas.height* 0.65);
 
-	    });
+                // If seeking to position, show
 
-	    // Append image icon + info text + bar to component root
+                if (this.video_el.seeking) {
+                  ctx.font = this.data.statusTextFont;
+                  ctx.fillStyle = this.data.textColor;
+                  ctx.textAlign = 'end';
+                  ctx.fillText('Seeking', this.bar_canvas.width * 0.95, this.bar_canvas.height * 0.6);
+                }
 
-	    this.el.appendChild(this.bar_canvas);
-	    this.el.appendChild(this.play_image);
-	    this.el.appendChild(this.bar);
+                // Uncomment below to see % of video loaded...
+                else {
+                  var percent =
+                    (this.video_el.buffered.end(this.video_el.buffered.length - 1) / this.video_el.duration) * 100;
 
+                  ctx.font = this.data.statusTextFont;
+                  ctx.fillStyle = this.data.textColor;
+                  ctx.textAlign = 'end';
 
-	    // Attach double click behavior outside player once scene is loaded
+                  ctx.fillText(
+                    percent.toFixed(0) + '% loaded',
+                    this.bar_canvas.width * 0.95,
+                    this.bar_canvas.height * 0.6
+                  );
+                }
 
-	    this.el.sceneEl.addEventListener("loaded", function(){
+                // Info text
 
-	        self.position_control_from_camera();
+                ctx.fillStyle = this.data.textColor;
+                ctx.font = this.data.infoTextFont;
+                ctx.textAlign = 'center';
+                ctx.fillText(this.data.infoTextTop, this.bar_canvas.width / 2, this.bar_canvas.height * 0.8);
+                ctx.fillText(this.data.infoTextBottom, this.bar_canvas.width / 2, this.bar_canvas.height * 0.95);
 
-	        this.addEventListener("dblclick", function(){
+                // Show buffered ranges 'bins'
 
-	            var raycaster = (document.querySelector("a-cursor") || document.querySelector("a-camera")).components.raycaster.raycaster;
+                for (var i = 0; i < this.video_el.buffered.length; i++) {
+                  var startX = this.video_el.buffered.start(i) * inc;
+                  var endX = this.video_el.buffered.end(i) * inc;
+                  var width = endX - startX;
 
-	            // Double click is outside the player
-	            // (note that for some reason you cannot prevent a dblclick on player from bubbling up (??)
+                  ctx.fillStyle = 'grey';
+                  ctx.fillRect(startX, 0, width, this.bar_canvas.height / 3);
+                }
 
-	            if(raycaster.intersectObject(self.el.object3D, true).length == 0){
+                // Red bar with already played range
 
-	                // If controls are show: hide
+                ctx.fillStyle = this.data.barColor;
+                ctx.fillRect(
+                  0,
+                  0,
+                  (this.video_el.currentTime / this.video_el.duration) * this.bar_canvas.width,
+                  this.bar_canvas.height / 3
+                );
+              }
 
+              // If material is not mapped yet to canvas texture and bar object3D is ready
+              // assign canvas as a texture
 
-	                if(self.el.getAttribute("visible")) {
-	                    self.el.setAttribute("visible", false);
-	                }
-	                // Else, show at 'distance' from camera
-	                else {
-	                    self.el.setAttribute("visible", true);
+              if (this.bar.object3D.children.length > 0) {
+                // If material is not mapped yet to canvas texture...
 
-	                    self.position_control_from_camera();
-	                }
-	            }
+                if (this.bar.object3D.children[0].material.map === null) {
+                  this.bar.object3D.children[0].material = new THREE.MeshBasicMaterial();
+                  this.bar.object3D.children[0].material.map = this.texture;
+                }
 
-	        });
+                this.texture.needsUpdate = true;
+              }
+            }
 
+            // Save this 't' to last_time
 
-	    });
+            this.last_time = t;
+          }
+        },
 
-	  },
+        /**
+         * Called when entity pauses.
+         * Use to stop or remove any dynamic or background behavior such as events.
+         */
+        pause: function () {},
 
-	  /**
-	   * Called when component is attached and when component data changes.
-	   * Generally modifies the entity based on the data.
-	   */
-	  update: function (oldData) {
+        /**
+         * Called when entity resumes.
+         * Use to continue or add any dynamic or background behavior such as events.
+         */
+        play: function () {},
+      });
 
-	    this.position_control_from_camera();
-
-	    this.bar.setAttribute("height", this.data.size/4.0);
-	    this.bar.setAttribute("width", this.data.size);
-	    this.bar.setAttribute("position", "0.0 0.0 0");
-
-
-	    this.play_image.setAttribute("height", this.data.size/4.0);
-	    this.play_image.setAttribute("width", this.data.size/4.0);
-	    this.play_image.setAttribute("position", ((-this.data.size/2.0) * 1.4) + " 0 0");
-
-
-	  },
-
-	  /**
-	   * Called when a component is removed (e.g., via removeAttribute).
-	   * Generally undoes all modifications to the entity.
-	   */
-	  remove: function () { 
-	  		window.removeEventListener('keyup', this.inputhandler , false);
-	  },
-
-	  /**
-	   * Called on each scene tick.
-	   */
-	  tick: function (t) {
-
-	    // Refresh every 250 millis
-
-	    if(typeof(this.last_time) === "undefined" || (t - this.last_time ) > 250) {
-
-	        // At the very least, have all video metadata
-	        // (https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/readyState)
-
-	        if(this.video_el.readyState > 0) {
-
-	            // Get current position minutes and second, and add leading zeroes if needed
-
-	            var current_minutes = Math.floor(this.video_el.currentTime / 60);
-	            var current_seconds = Math.floor(this.video_el.currentTime % 60);
-
-
-	            current_minutes = current_minutes < 10 ? "0" + current_minutes : current_minutes;
-	            current_seconds = current_seconds < 10 ? "0" + current_seconds : current_seconds;
-
-	            // Get video duration in  minutes and second, and add leading zeroes if needed
-
-	            var duration_minutes = Math.floor(this.video_el.duration / 60);
-	            var duration_seconds = Math.floor(this.video_el.duration % 60);
-
-
-	            duration_minutes = duration_minutes < 10 ? "0" + duration_minutes : duration_minutes;
-	            duration_seconds = duration_seconds < 10 ? "0" + duration_seconds : duration_seconds;
-
-	            // Refresh time information : currentTime / duration
-
-	            var time_info_text = current_minutes + ":" + current_seconds + " / " + duration_minutes + ":" + duration_seconds;
-
-	            //  Refresh transport bar canvas
-
-	            var inc = this.bar_canvas.width / this.video_el.duration;
-
-	            //  display buffered TimeRanges
-
-	            if (this.video_el.buffered.length > 0) {
-
-	                // Synchronize current step with currentTime
-
-	                this.current_step = Math.round((this.video_el.currentTime/this.video_el.duration)*this.bar_steps);
-
-	                var ctx = this.context;
-	                ctx.fillStyle = this.data.backgroundColor;
-	                ctx.fillRect(0, 0, this.bar_canvas.width, this.bar_canvas.height);
-
-	                // Uncomment to draw a single bar for loaded data instead of 'bins'
-
-	                //                ctx.fillStyle = "grey";
-	                //
-	                //                ctx.fillRect(0, 0,
-	                //                    (this.video_el.buffered.end(this.video_el.buffered.length - 1) / this.video_el.duration)*this.bar_canvas.width,
-	                //                    this.bar_canvas.height/2);
-
-
-
-	                // Display time info text
-
-	                ctx.font = this.data.timeTextFont;
-	                ctx.fillStyle = "white";
-	                ctx.textAlign = "center";
-	                ctx.fillText(time_info_text, this.bar_canvas.width/2, this.bar_canvas.height* 0.65);
-
-	                // DEBUG PURPOSES
-
-	//                ctx.fillText(this.video_el.readyState, this.bar_canvas.width*0.1, this.bar_canvas.height* 0.65);
-
-	                // If seeking to position, show
-
-	                if(this.video_el.seeking){
-	                    ctx.font = this.data.statusTextFont;
-	                    ctx.fillStyle = this.data.textColor;
-	                    ctx.textAlign = "end";
-	                    ctx.fillText("Seeking", this.bar_canvas.width * 0.95, this.bar_canvas.height * 0.60);
-	                }
-
-	                // Uncomment below to see % of video loaded...
-
-	                else {
-
-	                    var percent = (this.video_el.buffered.end(this.video_el.buffered.length - 1) / this.video_el.duration) * 100;
-
-	                    ctx.font = this.data.statusTextFont;
-	                    ctx.fillStyle = this.data.textColor;
-	                    ctx.textAlign = "end";
-
-	                    ctx.fillText(percent.toFixed(0) + "% loaded", this.bar_canvas.width * 0.95, this.bar_canvas.height * 0.60);
-	                }
-
-
-	                // Info text
-
-	                ctx.fillStyle = this.data.textColor;
-	                ctx.font = this.data.infoTextFont;
-	                ctx.textAlign = "center";
-	                ctx.fillText(this.data.infoTextTop, this.bar_canvas.width/2, this.bar_canvas.height* 0.8);
-	                ctx.fillText(this.data.infoTextBottom, this.bar_canvas.width/2, this.bar_canvas.height* 0.95);
-
-	                // Show buffered ranges 'bins'
-
-	                for (var i = 0; i < this.video_el.buffered.length; i++) {
-
-	                    var startX = this.video_el.buffered.start(i) * inc;
-	                    var endX = this.video_el.buffered.end(i) * inc;
-	                    var width = endX - startX;
-
-	                    ctx.fillStyle = "grey";
-	                    ctx.fillRect(startX, 0, width, this.bar_canvas.height/3);
-
-	                }
-
-	                // Red bar with already played range
-
-	                ctx.fillStyle = this.data.barColor;
-	                ctx.fillRect(0, 0,
-	                    (this.video_el.currentTime / this.video_el.duration)*this.bar_canvas.width,
-	                    this.bar_canvas.height/3);
-
-	            }
-
-
-	            // If material is not mapped yet to canvas texture and bar object3D is ready
-	            // assign canvas as a texture
-
-	            if(this.bar.object3D.children.length > 0) {
-
-	                // If material is not mapped yet to canvas texture...
-
-	                if(this.bar.object3D.children[0].material.map === null) {
-	                    this.bar.object3D.children[0].material = new THREE.MeshBasicMaterial();
-	                    this.bar.object3D.children[0].material.map = this.texture;
-	                }
-
-	                this.texture.needsUpdate = true;
-	            }
-
-
-	        }
-
-	        // Save this 't' to last_time
-
-	        this.last_time = t;
-	    }
-	  },
-
-	  /**
-	   * Called when entity pauses.
-	   * Use to stop or remove any dynamic or background behavior such as events.
-	   */
-	  pause: function () { },
-
-	  /**
-	   * Called when entity resumes.
-	   * Use to continue or add any dynamic or background behavior such as events.
-	   */
-	  play: function () { }
-	});
-
-
-/***/ }
-/******/ ]);
+      /***/
+    },
+    /******/
+  ]
+);

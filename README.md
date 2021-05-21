@@ -1,7 +1,7 @@
 # dom2aframe
 
-A library for converting HTML / CSS into WebGL, for use in VR with aframe.
+A library for converting HTML / CSS into Aframe entities, for use in VR.
 
-Trying to revive the original DOM2Aframe (https://github.com/rmarx/DOM2AFrame and https://github.com/SanderVanhove/DOM2AFrame).
+This is a revival of the original DOM2Aframe, located on github [here](https://github.com/rmarx/DOM2AFrame) and [here](https://github.com/SanderVanhove/DOM2AFrame).
 
-Here's their paper https://webvr.edm.uhasselt.be/files/IC3D17_DOM2AFrame_Marx.pdf
+Here's their [paper](https://webvr.edm.uhasselt.be/files/IC3D17_DOM2AFrame_Marx.pdf) on it.

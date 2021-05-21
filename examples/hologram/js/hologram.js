@@ -86,16 +86,16 @@ class HologramData {
     //JSONLoader is removed in modern three
     //not worth fixing, the format is obsolete
     //models will be loaded through formats like GLTF nowadays
-    this.loader = new THREE.JSONLoader();
+    //this.loader = new THREE.JSONLoader();
   }
 
   LoadAndAppend(threeScene, loadedCallback = undefined) {
     //console.error('Loading Hologram!');
 
     let self = this;
-    this.loader.load('./files/models/eva-animated.json', function (geometry, materials) {
-      self.OnMeshLoaded(geometry, materials, loadedCallback);
-    });
+    //this.loader.load('./files/models/eva-animated.json', function (geometry, materials) {
+    //self.OnMeshLoaded(geometry, materials, loadedCallback);
+    //});
   } // Load
 
   OnMeshLoaded(geometry, materials, loadedCallback) {

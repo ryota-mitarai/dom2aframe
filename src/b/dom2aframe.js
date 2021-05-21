@@ -1,5 +1,5 @@
 //Loggs when true
-var debugging = true;
+var debugging = false;
 
 //The size of the CSS refference pixel times 10
 var pixels_per_meter = 100 / 0.26;
@@ -237,7 +237,7 @@ class Dom2Aframe {
   UpdateAll() {
     //Only update when something is dirty
     if (this.somethingdirty) {
-      //log('Updating all Elements');
+      log('Updating all Elements');
 
       for (var i = 0; i < this.a_elements.length; i++) {
         this.a_elements[i].update();
@@ -250,7 +250,7 @@ class Dom2Aframe {
       this.stop = performance.now();
       this.frames++;
       if (this.stop - this.start > 1000) {
-        //log('AnimationFrames per second: ' + this.frames);
+        log('AnimationFrames per second: ' + this.frames);
         this.start = performance.now();
         this.frames = 0;
       }
@@ -282,8 +282,8 @@ class Dom2Aframe {
     )
       return;
 
-    //log('New element:');
-    //log(element);
+    log('New element:');
+    log(element);
     var new_a_element = null;
 
     if (this.elementIsInList(container_elements, element.tagName))
@@ -335,8 +335,8 @@ class Dom2Aframe {
   RemoveElement(removed_element) {
     for (var i = 0; i < this.a_elements.length; i++) {
       if (this.a_elements[i].getDomElement() == removed_element) {
-        //log('Element removed:');
-        //log(this.a_elements[i]);
+        log('Element removed:');
+        log(this.a_elements[i]);
 
         if (this.a_elements[i].parent) {
           this.a_elements[i].parent.removeChild(this.a_elements[i].getAElement());
@@ -375,8 +375,8 @@ class Dom2Aframe {
   createAllElements() {
     var body = this.AddNewNestedElement(document.body).getAElement();
 
-    //log('Add body');
-    //log(this.camera.getAElement().hasLoaded);
+    log('Add body');
+    log(this.camera.getAElement().hasLoaded);
 
     if (this.camera.getAElement().hasLoaded) this.a_element_container.appendChild(body);
     else

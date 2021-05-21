@@ -204,7 +204,7 @@ class Element {
   startAnimation(event) {
     //Stop the event from propagating to parent elements
     event.stopPropagation();
-    //log('Animation started');
+    log('Animation started');
 
     this.stopIntervall();
     this.updateAnimation();
@@ -215,7 +215,7 @@ class Element {
   stopAnimation() {
     //Stop the event from propagating to parent elements
     event.stopPropagation();
-    //log('Animation stopt');
+    log('Animation stopt');
 
     this.stopIntervall();
     this.updateAnimation();

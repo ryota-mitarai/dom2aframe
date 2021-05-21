@@ -17,7 +17,7 @@ class Controllers {
 
   //If a game pad gets conected, remove the cursor from the camera and add the controller
   controllerConected() {
-    //log('Controller conected');
+    log('Controller conected');
     this.aelement.appendChild(this.right_hand);
     this.camera.removeCursor();
   }
